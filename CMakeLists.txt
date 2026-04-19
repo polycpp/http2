@@ -70,33 +70,28 @@ endfunction()
 
 include(cmake/HTTP2.cmake)
 
-if(POLYCPP_HAS_HTTP2)
-    add_library(polycpp_http2 src/http2.cpp)
-    target_link_libraries(polycpp_http2 PUBLIC polycpp ${POLYCPP_NGHTTP2_LIB})
-    target_include_directories(polycpp_http2 PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-    )
-    foreach(_polycpp_http2_inc IN LISTS POLYCPP_NGHTTP2_INCLUDE_DIR)
-        target_include_directories(polycpp_http2 PUBLIC
-            $<BUILD_INTERFACE:${_polycpp_http2_inc}>)
-    endforeach()
-    target_compile_features(polycpp_http2 PUBLIC cxx_std_20)
-    target_compile_definitions(polycpp_http2 PUBLIC POLYCPP_HAS_HTTP2=1)
-else()
-    add_library(polycpp_http2 INTERFACE)
-    target_link_libraries(polycpp_http2 INTERFACE polycpp)
-    target_include_directories(polycpp_http2 INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-    )
+if(NOT POLYCPP_HAS_HTTP2)
+    message(FATAL_ERROR "polycpp_http2 requires nghttp2 to configure successfully.")
 endif()
+
+add_library(polycpp_http2 src/http2.cpp)
+target_link_libraries(polycpp_http2 PUBLIC polycpp ${POLYCPP_NGHTTP2_LIB})
+target_include_directories(polycpp_http2 PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+foreach(_polycpp_http2_inc IN LISTS POLYCPP_NGHTTP2_INCLUDE_DIR)
+    target_include_directories(polycpp_http2 PUBLIC
+        $<BUILD_INTERFACE:${_polycpp_http2_inc}>)
+endforeach()
+target_compile_features(polycpp_http2 PUBLIC cxx_std_20)
+target_compile_definitions(polycpp_http2 PUBLIC POLYCPP_HAS_HTTP2=1)
 
 add_library(polycpp::http2 ALIAS polycpp_http2)
 polycpp_apply_base_config_contract(polycpp_http2)
 
 
-if(POLYCPP_HTTP2_BUILD_TESTS AND POLYCPP_HAS_HTTP2)
+if(POLYCPP_HTTP2_BUILD_TESTS)
     enable_testing()
     FetchContent_Declare(
         googletest
