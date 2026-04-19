@@ -23,6 +23,51 @@ else()
 endif()
 FetchContent_MakeAvailable(polycpp)
 
+function(polycpp_apply_base_config_contract target_name)
+    if(NOT TARGET ${target_name})
+        message(FATAL_ERROR "Cannot apply the polycpp configuration contract to missing target ${target_name}.")
+    endif()
+    if(NOT TARGET polycpp)
+        message(FATAL_ERROR "${target_name} requires the base polycpp target before applying the configuration contract.")
+    endif()
+
+    get_target_property(_polycpp_base_compatible_properties
+        polycpp COMPATIBLE_INTERFACE_STRING)
+    if(NOT _polycpp_base_compatible_properties OR _polycpp_base_compatible_properties STREQUAL "_polycpp_base_compatible_properties-NOTFOUND")
+        message(FATAL_ERROR
+            "${target_name} requires a base polycpp target that exposes a POLYCPP_CONFIG_* "
+            "compatible-interface contract. Update the base polycpp CMake package.")
+    endif()
+
+    set(_polycpp_contract_properties)
+    foreach(_polycpp_contract_property IN LISTS _polycpp_base_compatible_properties)
+        if(_polycpp_contract_property MATCHES "^POLYCPP_CONFIG_")
+            list(APPEND _polycpp_contract_properties "${_polycpp_contract_property}")
+        endif()
+    endforeach()
+    if(NOT _polycpp_contract_properties)
+        message(FATAL_ERROR
+            "${target_name} requires a base polycpp target with POLYCPP_CONFIG_* "
+            "compatible-interface properties. Update the base polycpp CMake package.")
+    endif()
+
+    set_property(TARGET ${target_name} APPEND PROPERTY
+        COMPATIBLE_INTERFACE_STRING ${_polycpp_contract_properties})
+
+    foreach(_polycpp_contract_property IN LISTS _polycpp_contract_properties)
+        get_target_property(_polycpp_contract_value
+            polycpp INTERFACE_${_polycpp_contract_property})
+        if(NOT DEFINED _polycpp_contract_value OR _polycpp_contract_value STREQUAL "_polycpp_contract_value-NOTFOUND")
+            message(FATAL_ERROR
+                "${target_name} requires a base polycpp target that exposes "
+                "INTERFACE_${_polycpp_contract_property}. Update the base polycpp CMake package.")
+        endif()
+        set_property(TARGET ${target_name} PROPERTY
+            INTERFACE_${_polycpp_contract_property} "${_polycpp_contract_value}")
+    endforeach()
+endfunction()
+
+
 include(cmake/HTTP2.cmake)
 
 if(POLYCPP_HAS_HTTP2)
@@ -48,6 +93,8 @@ else()
 endif()
 
 add_library(polycpp::http2 ALIAS polycpp_http2)
+polycpp_apply_base_config_contract(polycpp_http2)
+
 
 if(POLYCPP_HTTP2_BUILD_TESTS AND POLYCPP_HAS_HTTP2)
     enable_testing()
