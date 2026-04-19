@@ -17,7 +17,7 @@ else()
     FetchContent_Declare(
         polycpp
         GIT_REPOSITORY git@github.com:enricohuang/polycpp.git
-        GIT_TAG        master
+        GIT_TAG        feature/1239-companion-split
         GIT_SHALLOW    TRUE
     )
 endif()
