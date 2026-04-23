@@ -196,7 +196,7 @@ void validateSettings(const Settings& settings);
  * @see Http2ServerRequest
  * @see Http2ServerResponse
  */
-class Http2Stream : public EventEmitterForwarder {
+class Http2Stream : public events::EventEmitterForwarder {
 public:
     /**
      * @brief Default-constructs an empty stream wrapper.
@@ -940,7 +940,7 @@ public:
  * @see Http2Server
  * @see Http2SecureServer
  */
-class Http2Session : public EventEmitterForwarder {
+class Http2Session : public events::EventEmitterForwarder {
 public:
     /**
      * @brief Default-constructs an empty session wrapper.
@@ -1607,7 +1607,7 @@ public:
  * @see createServer
  * @see createSecureServer
  */
-class Http2Server : public EventEmitterForwarder {
+class Http2Server : public events::EventEmitterForwarder {
 public:
     /**
      * @brief Default-constructs an empty server wrapper.
@@ -1804,7 +1804,7 @@ private:
  * @see Http2ServerResponse
  * @see createSecureServer
  */
-class Http2SecureServer : public EventEmitterForwarder {
+class Http2SecureServer : public events::EventEmitterForwarder {
 public:
     /**
      * @brief Default-constructs an empty secure server wrapper.
@@ -1991,7 +1991,7 @@ private:
  * @see ServerHttp2Stream
  * @see Http2Server
  */
-class Http2ServerRequest : public EventEmitterForwarder {
+class Http2ServerRequest : public events::EventEmitterForwarder {
 public:
     /**
      * @brief Default-constructs an empty request wrapper.
@@ -2271,7 +2271,7 @@ private:
  * @see ServerHttp2Stream
  * @see Http2Server
  */
-class Http2ServerResponse : public EventEmitterForwarder {
+class Http2ServerResponse : public events::EventEmitterForwarder {
 public:
     /**
      * @brief Default-constructs an empty response wrapper.
